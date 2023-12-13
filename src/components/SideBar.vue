@@ -48,6 +48,10 @@ aside a {
   color: #333; 
 }
 
+aside li:hover {
+  border: 1px solid #a0a0a0; 
+  cursor: pointer;
+}
 
 aside a:hover {
   color: #000;
