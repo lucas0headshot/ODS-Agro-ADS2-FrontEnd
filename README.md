@@ -1,1 +1,3 @@
-Front-End do projeto de extensão referente a ODS de fome zero e agricultura sustentável.
+# Projeto agro ADS2
+
+# necessário vite, npm, node e vue3

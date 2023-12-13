@@ -1,7 +1,15 @@
 <template>
-  <router-link to="/">products</router-link>
-  <br>
-  <router-link to="/about">about</router-link>
-
+  <SideBar></SideBar> <!-- tag do template -->
+  
   <router-view></router-view>
 </template>
+
+<script setup>
+  import SideBar from "./components/SideBar.vue"; //template importado
+
+  
+</script>
+
+<style scoped>
+  
+</style>
