@@ -5,8 +5,22 @@
     <!-- Form Section -->
     <form @submit.prevent="isEditing ? updateVendas() : submitForm()">
       <label for="produto">Produto:</label>
-      <input type="text" id="produto" v-model="produto" required>
-  
+      <select id="produto" v-model="produtoSelecionado" required>
+        <option v-for="produto in produtos" :key="produto.id" :value="produto.id">
+          {{ produto.nome }}
+        </option>
+      </select>
+
+      <p>Em estoque: {{ quantidadeEstoque }}</p>
+    
+      <label for="cliente">Cliente:</label>
+      <select id="cliente" v-model="clienteSelecionado" required>
+        <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
+          {{ cliente.nomeFantasia }}
+        </option>
+      </select>
+
+
       <label for="quantidade">Quantidade:</label>
       <input type="number" id="quantidade" v-model="quantidade" required>
   
@@ -60,20 +74,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch, toRefs } from 'vue';
 import axios from 'axios';
 
-// State
 const isDeleteModalVisible = ref(false);
 let vendasIdToDelete = null;
 const produto = ref('');
 const quantidade = ref(''); 
 const dataVenda = ref('');
 const vendas = ref([]);
+const produtos = ref([]);
+const clientes = ref([]);
 const editingVendas = ref(null);
+const clienteSelecionado = ref(null);
+const produtoSelecionado = ref(null);
+
+const quantidadeEstoque = ref(0);
 
 
-// Computed Property
 const isEditing = computed(() => !!editingVendas.value);
 
 // Methods
@@ -115,10 +133,10 @@ const confirmDelete = () => {
 const submitForm = () => {
   const data = {
     cliente: {
-      id: 2
+      id: clienteSelecionado.value
     },
     produto: {
-      id: 55
+      id: produtoSelecionado.value
     },
     qtdVendida: quantidade.value,
     dataVenda: dataVenda.value,
@@ -129,6 +147,8 @@ const submitForm = () => {
     .then(response => {
       console.log('Resposta do servidor:', response.data);
       getVendas();
+
+      getProduto(produtoSelecionado.value);
 
       produto.value = '';
       quantidade.value = '';
@@ -142,10 +162,6 @@ const submitForm = () => {
 const startEditing = (vendas) => {
   editingVendas.value = { ...vendas };
 
-  razaoSocial.value = vendas.razaoSocial;
-  nomeFantasia.value = vendas.nomeFantasia;
-  cnpj.value = vendas.cnpj;
-  endereco.value = vendas.endereco;
 };
 
 const cancelEditing = () => {
@@ -154,8 +170,13 @@ const cancelEditing = () => {
 
 const updateVendas = () => {
   const data = {
-    produto: produto.value,
-    quantidade: quantidade.value,
+    cliente: {
+      id: clienteSelecionado.value
+    },
+    produto: {
+      id: produtoSelecionado.value
+    },
+    qtdVendida: quantidade.value,
     dataVenda: dataVenda.value,
   };
 
@@ -170,11 +191,26 @@ const updateVendas = () => {
     });
 };
 
-onMounted(() => {
-  getVendas();
+const obterDetalhesDoProduto = (produtoId) => {
+  return produtos.value.find((produto) => produto.id === produtoId);
+};
+
+const obterEstoqueDoProduto = (detalhesProduto) => {
+  return detalhesProduto ? detalhesProduto.qtdEstoque : 0;
+};
+
+watch(() => {
+  const detalhesProduto = obterDetalhesDoProduto(produtoSelecionado.value);
+  quantidadeEstoque.value = obterEstoqueDoProduto(detalhesProduto);
 });
 
-// Fetch Vendas Data
+
+onMounted(() => {
+  getVendas();
+  getProduto();
+  getCliente();
+});
+
 function getVendas() {
   axios.get('http://localhost:8080/api/vendas')
     .then(response => {
@@ -183,6 +219,31 @@ function getVendas() {
     })
     .catch(error => {
       console.error('Erro ao obter vendas:', error);
+    });
+}
+
+function getProduto() {
+  axios.get('http://localhost:8080/api/produto')
+    .then(response => {
+      console.log('Resposta do get:', response.data);
+      produtos.value = response.data;
+
+      const detalhesProduto = response.data;
+      quantidadeEstoque.value = detalhesProduto.qtdEstoque;
+    })
+    .catch(error => {
+      console.error('Erro ao obter produto:', error);
+    });
+}
+
+function getCliente() {
+  axios.get('http://localhost:8080/api/cliente')
+    .then(response => {
+      console.log('Resposta do servidor:', response.data);
+      clientes.value = response.data;
+    })
+    .catch(error => {
+      console.error('Erro ao obter clientes:', error);
     });
 }
 </script>

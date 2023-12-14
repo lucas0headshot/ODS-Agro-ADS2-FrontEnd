@@ -180,7 +180,6 @@ onMounted(() => {
   getCliente();
 });
 
-// Fetch Cliente Data
 function getCliente() {
   axios.get('http://localhost:8080/api/cliente')
     .then(response => {
