@@ -78,14 +78,11 @@ const endereco = ref('');
 const fornecedores = ref([]);
 const editingFornecedor = ref(null);
 
-// Computed Property
 const isEditing = computed(() => !!editingFornecedor.value);
 
-// Methods
 const excluirFornecedor = (fornecedor) => {
-  fornecedorIdToDelete = fornecedor.id;
+  editingFornecedor.value = fornecedor;
   showDeleteModal();
-  disableBodyScroll();
 };
 
 const showDeleteModal = () => {
@@ -94,19 +91,11 @@ const showDeleteModal = () => {
 
 const hideDeleteModal = () => {
   isDeleteModalVisible.value = false;
-  enableBodyScroll();
-};
-
-const disableBodyScroll = () => {
-  document.body.style.overflow = 'hidden';
-};
-
-const enableBodyScroll = () => {
-  document.body.style.overflow = 'auto'; // or use 'visible'
 };
 
 const confirmDelete = () => {
-  axios.delete(`http://localhost:8080/api/fornecedor/${fornecedorIdToDelete}`)
+  const idToDelete = editingFornecedor.value.id;
+  axios.delete(`http://localhost:8080/api/fornecedor/${idToDelete}`)
     .then(response => {
       console.log('Fornecedor excluído:', response.data);
       hideDeleteModal();

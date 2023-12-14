@@ -46,14 +46,14 @@
             <th>Actions</th>
           </tr>
 
-          <tr v-for="(vendas, index) in vendas" :key="index">
-            <td>{{ vendas.produto.nome }}</td>
-            <td>{{ vendas.qtdVendida }}</td>
-            <td>{{ vendas.dataVenda }}</td>
+          <tr v-for="(venda, index) in vendas" :key="index">
+            <td>{{ venda.produto.nome }}</td>
+            <td>{{ venda.qtdVendida }}</td>
+            <td>{{ venda.dataVenda }}</td>
 
             <td class="actions">
-              <button id="btnEditar" @click="startEditing(vendas)">Editar</button>
-              <button id="btnExcluir" @click="excluirVendas(vendas)">Excluir</button>
+              <button id="btnEditar" @click="startEditing(venda)">Editar</button>
+              <button id="btnExcluir" @click="excluirVendas(venda)">Excluir</button>
             </td>
           </tr>
         </tbody>
@@ -74,13 +74,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, toRefs } from 'vue';
+import { ref, onMounted, computed, watchEffect } from 'vue';
 import axios from 'axios';
 
 const isDeleteModalVisible = ref(false);
 let vendasIdToDelete = null;
-const produto = ref('');
 const quantidade = ref(''); 
+const originalQuantidade = ref('');
 const dataVenda = ref('');
 const vendas = ref([]);
 const produtos = ref([]);
@@ -91,10 +91,8 @@ const produtoSelecionado = ref(null);
 
 const quantidadeEstoque = ref(0);
 
-
 const isEditing = computed(() => !!editingVendas.value);
 
-// Methods
 const excluirVendas = (vendas) => {
   vendasIdToDelete = vendas.id;
   showDeleteModal();
@@ -142,7 +140,6 @@ const submitForm = () => {
     dataVenda: dataVenda.value,
   };
 
-
   axios.post('http://localhost:8080/api/vendas', data)
     .then(response => {
       console.log('Resposta do servidor:', response.data);
@@ -150,22 +147,31 @@ const submitForm = () => {
 
       getProduto(produtoSelecionado.value);
 
-      produto.value = '';
+      produtos.value = '';
       quantidade.value = '';
       dataVenda.value = '';
+      quantidadeEstoque.value = "";
     })
     .catch(error => {
       console.error('Erro ao enviar formulário:', error);
     });
 };
 
-const startEditing = (vendas) => {
-  editingVendas.value = { ...vendas };
-
+const startEditing = (venda) => {
+  editingVendas.value = { ...venda };
+  originalQuantidade.value = venda.qtdVendida || '';
+  clienteSelecionado.value = venda.cliente.id;
+  produtoSelecionado.value = venda.produto.id;
+  quantidade.value = originalQuantidade.value;
+  dataVenda.value = venda.dataVenda || '';
 };
 
 const cancelEditing = () => {
-
+  editingVendas.value = null;
+  clienteSelecionado.value = null;
+  produtoSelecionado.value = null;
+  quantidade.value = null;
+  dataVenda.value = '';
 };
 
 const updateVendas = () => {
@@ -180,9 +186,10 @@ const updateVendas = () => {
     dataVenda: dataVenda.value,
   };
 
-  axios.patch(`http://localhost:8080/api/vendas/${editingVendas.value.id}`, data)
+  axios.put(`http://localhost:8080/api/vendas/${editingVendas.value.id}`, data)
     .then(response => {
       console.log('Vendas atualizado:', response.data);
+      originalQuantidade.value = quantidade.value; // Atualiza a quantidade original
       cancelEditing();
       getVendas();
     })
@@ -191,19 +198,24 @@ const updateVendas = () => {
     });
 };
 
+
 const obterDetalhesDoProduto = (produtoId) => {
-  return produtos.value.find((produto) => produto.id === produtoId);
+  if (Array.isArray(produtos.value)) {
+    return produtos.value.find((produto) => produto.id === produtoId);
+  } else {
+    return null;
+  }
 };
+
 
 const obterEstoqueDoProduto = (detalhesProduto) => {
   return detalhesProduto ? detalhesProduto.qtdEstoque : 0;
 };
 
-watch(() => {
+watchEffect(() => {
   const detalhesProduto = obterDetalhesDoProduto(produtoSelecionado.value);
   quantidadeEstoque.value = obterEstoqueDoProduto(detalhesProduto);
 });
-
 
 onMounted(() => {
   getVendas();
@@ -214,7 +226,7 @@ onMounted(() => {
 function getVendas() {
   axios.get('http://localhost:8080/api/vendas')
     .then(response => {
-      console.log('Resposta do servidor:', response.data);
+      console.log('Resposta do servidor get:', response.data);
       vendas.value = response.data;
     })
     .catch(error => {
