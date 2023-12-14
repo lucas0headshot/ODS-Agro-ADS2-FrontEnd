@@ -34,23 +34,21 @@ aside {
 }
 
 aside ul {
+  padding-top: 30px;
+  display: flex;
+  flex-direction: column;
   list-style-type: none;
 }
 
 aside li {
-  padding: 10px;
-  border-bottom: 1px solid #ddd; 
+  padding: 30px 0px 0px 30px;
 }
-
 
 aside a {
+  width: 100%;
   text-decoration: none;
   color: #333; 
-}
-
-aside li:hover {
-  border: 1px solid #a0a0a0; 
-  cursor: pointer;
+  font-size: large;
 }
 
 aside a:hover {
