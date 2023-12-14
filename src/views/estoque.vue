@@ -5,6 +5,13 @@
     <!-- Form Section -->
     <form @submit.prevent="isEditing ? updateProduto() : submitForm()">
      
+      <label for="fornecedor">Fornecedor:</label>
+      <select id="fornecedor" v-model="fornecedorSelecionado" required>
+        <option v-for="fornecedor in fornecedores" :key="fornecedor.id" :value="fornecedor.id">
+          {{ fornecedor.nomeFantasia }}
+        </option>
+      </select>
+
       <label for="nomeProduto">Nome do Produto:</label>
       <input type="text" id="nomeProduto" v-model="nomeProduto" required>
 
@@ -91,6 +98,10 @@ const dataValidadeProduto = ref('');
 const qtdEstoqueProduto = ref('');
 const editingProduto = ref(null);
 
+const fornecedores = ref([]);
+const fornecedorSelecionado = ref('');
+
+
 
 const isEditing = computed(() => !!editingProduto.value);
 
@@ -132,7 +143,7 @@ const confirmDelete = () => {
 const submitForm = () => {
   const data = {
     fornecedor: {
-    id: 159
+    id: fornecedorSelecionado.value
   },
     nome: nomeProduto.value,
 		valor: valorProduto.value,
@@ -208,6 +219,7 @@ const updateProduto = () => {
 
 onMounted(() => {
   getProduto();
+  getFornecedor();
 });
 
 function getProduto() {
@@ -220,6 +232,18 @@ function getProduto() {
       console.error('Erro ao obter produto:', error);
     });
 }
+
+function getFornecedor() {
+  axios.get('http://localhost:8080/api/fornecedor')
+    .then(response => {
+      console.log('Resposta do servidor:', response.data);
+      fornecedores.value = response.data;
+    })
+    .catch(error => {
+      console.error('Erro ao obter fornecedores:', error);
+    });
+}
+
 </script>
 
 <style scoped>
