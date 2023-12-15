@@ -172,6 +172,10 @@ const submitForm = () => {
     })
     .catch(error => {
       console.error('Erro ao enviar formulário:', error);
+
+      if (error.response.status === 422) {
+        alert(error.response.data.erro)
+      }
     });
 };
 
@@ -219,6 +223,10 @@ const updateProduto = () => {
     })
     .catch(error => {
       console.error('Erro ao atualizar produto:', error);
+      
+      if (error.response.status === 422) {
+        alert(error.response.data.erro)
+      }
     });
 };
 

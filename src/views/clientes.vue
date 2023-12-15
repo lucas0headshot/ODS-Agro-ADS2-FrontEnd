@@ -115,7 +115,7 @@ const confirmDelete = () => {
     .catch(error => {
       console.error('Erro ao excluir cliente:', error);
 
-      if (error.response.status === 400) {
+      if (error.response.status === 500) {
         alert('Este cliente não pode ser excluído!');
       }
     });
@@ -141,6 +141,10 @@ const submitForm = () => {
     })
     .catch(error => {
       console.error('Erro ao enviar formulário:', error);
+
+      if (error.response.status === 422) {
+        alert(error.response.data.erro);
+      }
     });
 };
 
@@ -167,9 +171,6 @@ const cancelEditing = () => {
 
 const updateCliente = () => {
   const data = {
-    razaoSocial: razaoSocial.value,
-    nomeFantasia: nomeFantasia.value,
-    cnpj: cnpj.value,
     endereco: endereco.value,
   };
 
