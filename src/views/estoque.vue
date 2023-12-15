@@ -175,12 +175,12 @@ const submitForm = () => {
 const startEditing = (produto) => {
   editingProduto.value = { ...produto };
 
-  nomeProduto.value = produto.nomeProduto;
-  valorProduto.value = produto.valorProduto;
-  pesoProduto.value = produto.pesoProduto;
-  dataProducaoProduto.value = produto.dataProducaoProduto;
-  dataValidadeProduto.value = produto.dataValidadeProduto;
-  qtdEstoqueProduto.value = produto.qtdEstoqueProduto;
+  nomeProduto.value = produto.nome;
+  valorProduto.value = produto.valor;
+  pesoProduto.value = produto.peso;
+  dataProducaoProduto.value = produto.dataProducao;
+  dataValidadeProduto.value = produto.dataValidade;
+  qtdEstoqueProduto.value = produto.qtdEstoque;
 };
 
 const cancelEditing = () => {
