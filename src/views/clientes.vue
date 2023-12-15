@@ -5,16 +5,16 @@
     <!-- Form Section -->
     <form @submit.prevent="isEditing ? updateCliente() : submitForm()">
       <label for="razaoSocial">Razão Social:</label>
-      <input type="text" id="razaoSocial" v-model="razaoSocial" required>
+      <input type="text" id="razaoSocial" v-model="razaoSocial" placeholder="Razão social" maxlength="45" required>
 
       <label for="nomeFantasia">Nome Fantasia:</label>
-      <input type="text" id="nomeFantasia" v-model="nomeFantasia" required>
+      <input type="text" id="nomeFantasia" v-model="nomeFantasia" placeholder="Nome fantasia" maxlength="45" required>
 
       <label for="cnpj">CNPJ:</label>
-      <input type="text" id="cnpj" v-model="cnpj" required>
+      <input type="text" id="cnpj"  v-model="cnpj" placeholder="00.000.000/0000-00" maxlength="14" required>
 
       <label for="endereco">Endereço:</label>
-      <input type="text" id="endereco" v-model="endereco" required>
+      <input type="text" id="endereco" v-model="endereco" placeholder="Endereço" maxlength="500" required>
 
       <div class="formActions">
         <button id="btnConfirm" type="submit">{{ isEditing ? 'Atualizar' : 'Enviar' }}</button>
@@ -114,6 +114,10 @@ const confirmDelete = () => {
     })
     .catch(error => {
       console.error('Erro ao excluir cliente:', error);
+
+      if (error.response.status === 500) {
+        alert('Este cliente não pode ser excluído!');
+      }
     });
 };
 
@@ -137,6 +141,10 @@ const submitForm = () => {
     })
     .catch(error => {
       console.error('Erro ao enviar formulário:', error);
+
+      if (error.response.status === 422) {
+        alert(error.response.data.erro);
+      }
     });
 };
 
@@ -147,6 +155,10 @@ const startEditing = (cliente) => {
   nomeFantasia.value = cliente.nomeFantasia;
   cnpj.value = cliente.cnpj;
   endereco.value = cliente.endereco;
+
+  razaoSocial.isInputDisbled = true;
+  nomeFantasia.isInputDisbled = true;
+  cnpj.isInputDisbled = true;
 };
 
 const cancelEditing = () => {
@@ -159,9 +171,6 @@ const cancelEditing = () => {
 
 const updateCliente = () => {
   const data = {
-    razaoSocial: razaoSocial.value,
-    nomeFantasia: nomeFantasia.value,
-    cnpj: cnpj.value,
     endereco: endereco.value,
   };
 
