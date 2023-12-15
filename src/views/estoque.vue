@@ -7,28 +7,31 @@
      
       <label for="fornecedor">Fornecedor:</label>
       <select id="fornecedor" v-model="fornecedorSelecionado" required>
+        <option selected value="">
+          Nenhum
+        </option>
         <option v-for="fornecedor in fornecedores" :key="fornecedor.id" :value="fornecedor.id">
           {{ fornecedor.nomeFantasia }}
         </option>
       </select>
 
       <label for="nomeProduto">Nome do Produto:</label>
-      <input type="text" id="nomeProduto" v-model="nomeProduto" required>
+      <input type="text" id="nomeProduto" v-model="nomeProduto" placeholder="Nome do produto" required>
 
       <label for="valorProduto">Valor do Produto:</label>
-      <input type="number" id="valorProduto" v-model="valorProduto" required>
+      <input type="number" id="valorProduto" v-model="valorProduto" placeholder="R$0,00" min="1" required>
 
       <label for="pesoProduto">Peso do Produto:</label>
-      <input type="number" id="pesoProduto" v-model="pesoProduto" required>
+      <input type="number" id="pesoProduto" v-model="pesoProduto" placeholder="0,00Kg" min="1" required>
 
       <label for="dataProducaoProduto">Data de Produção do Produto:</label>
-      <input type="date" id="dataProducaoProduto" v-model="dataProducaoProduto">
+      <input type="date" id="dataProducaoProduto" v-model="dataProducaoProduto" required>
 
       <label for="dataValidadeProduto">Data de Validade do Produto:</label>
-      <input type="date" id="dataValidadeProduto" v-model="dataValidadeProduto">
+      <input type="date" id="dataValidadeProduto" v-model="dataValidadeProduto" required>
 
       <label for="qtdEstoqueProduto">Quantidade em Estoque:</label>
-      <input type="number" id="qtdEstoqueProduto" v-model="qtdEstoqueProduto" required>
+      <input type="number" id="qtdEstoqueProduto" v-model="qtdEstoqueProduto" placeholder="0un" min="1" required>
 
       <div class="formActions">
         <button id="btnConfirm" type="submit">{{ isEditing ? 'Atualizar' : 'Enviar' }}</button>
@@ -175,6 +178,7 @@ const submitForm = () => {
 const startEditing = (produto) => {
   editingProduto.value = { ...produto };
 
+  fornecedorSelecionado.value = produto.fornecedor.id;
   nomeProduto.value = produto.nome;
   valorProduto.value = produto.valor;
   pesoProduto.value = produto.peso;
@@ -196,15 +200,16 @@ const cancelEditing = () => {
 const updateProduto = () => {
   const data = {
     fornecedor: {
-    id: 159
-  },
+      id: fornecedorSelecionado.value
+    },
+
     nome: nomeProduto.value,
-		valor: valorProduto.value,
-		peso: pesoProduto.value,
-		dataProducao: dataProducaoProduto.value,
-		dataValidade: dataValidadeProduto.value,
-		qtdEstoque: qtdEstoqueProduto.value
-  };
+    valor: valorProduto.value,
+    peso: pesoProduto.value,
+    dataProducao: dataProducaoProduto.value,
+    dataValidade: dataValidadeProduto.value,
+    qtdEstoque: qtdEstoqueProduto.value
+  }
 
   axios.put(`http://localhost:8080/api/produto/${editingProduto.value.id}`, data)
     .then(response => {

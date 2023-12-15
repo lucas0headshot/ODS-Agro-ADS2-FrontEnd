@@ -6,6 +6,9 @@
     <form @submit.prevent="isEditing ? updateVendas() : submitForm()">
       <label for="produto">Produto:</label>
       <select id="produto" v-model="produtoSelecionado" required>
+        <option selected value="">
+          Nenhum
+        </option>
         <option v-for="produto in produtos" :key="produto.id" :value="produto.id">
           {{ produto.nome }}
         </option>
@@ -15,6 +18,9 @@
     
       <label for="cliente">Cliente:</label>
       <select id="cliente" v-model="clienteSelecionado" required>
+        <option selected value="">
+          Nenhum
+        </option>
         <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">
           {{ cliente.nomeFantasia }}
         </option>
@@ -22,7 +28,7 @@
 
 
       <label for="quantidade">Quantidade:</label>
-      <input type="number" id="quantidade" v-model="quantidade" required>
+      <input type="number" id="quantidade" v-model="quantidade" placeholder="un" min="1" required>
   
       <label for="dataVenda">Data de Venda:</label>
       <input type="date" id="dataVenda" v-model="dataVenda" required>
@@ -125,6 +131,10 @@ const confirmDelete = () => {
     })
     .catch(error => {
       console.error('Erro ao excluir vendas:', error);
+
+      if (error.response.status === 400) {
+        alert('Esta venda não pode ser excluída!');
+      }
     });
 };
 
@@ -154,6 +164,9 @@ const submitForm = () => {
     })
     .catch(error => {
       console.error('Erro ao enviar formulário:', error);
+      if (error.response.status = 422) {
+        alert(error.response.data.erro)
+      } 
     });
 };
 
